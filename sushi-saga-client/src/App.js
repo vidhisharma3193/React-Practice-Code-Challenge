@@ -6,75 +6,56 @@ import Table from "./containers/Table";
 const API = "http://localhost:3000/sushis";
 
 class App extends Component {
-  state = {
-    allSushis: [],
-    eatenSushis: [],
-    sushiIndex: 0,
-    money: 1000
-  };
-
-  fetchSushis = () => {
-    fetch(API)
-      .then(response => response.json())
-      .then(data =>
-        this.setState({
-          allSushis: data
-        })
-      );
-  };
-
-  canAffordSushi = sushi => this.state.money - sushi.price > 0;
-
-  componentDidMount() {
-    this.fetchSushis();
+  constructor() {
+    super();
+    this.state = {
+      sushis: [],
+      eatenSushi: [],
+      moneyRemaining: 100
+    };
   }
 
-  getSushiSet = () =>
-    this.state.allSushis.slice(
-      this.state.sushiIndex,
-      this.state.sushiIndex + 4
-    );
+  componentDidMount() {
+    fetch(API)
+      .then(res => res.json())
+      .then(data => this.setState({ sushis: data }));
+  }
 
-  getNewSushiSet = () => {
-    this.setState(state => ({
-      sushiIndex: (state.sushiIndex + 4) % 100
-    }));
+  displaySushi() {
+    return this.state.sushis.slice(0, 4);
+  }
+
+  moreSushi = () => {
+    this.setState({ sushis: this.state.sushis.slice(4) });
+    //slice - returns section of array
   };
 
-  sushiEaten = sushi => this.state.eatenSushis.includes(sushi);
-
-  sushiTransaction = sushi => {
-    if (!this.state.eatenSushis.includes(sushi) && this.canAffordSushi(sushi)) {
-      this.setState(state => ({
-        eatenSushis: [...state.eatenSushis, sushi],
-        money: state.money - sushi.price
-        // this.state.eatenSushis.push(sushi),
-        // this.state.money: state.money - sushi.price
-      }));
+  eatSushi = sushi => {
+    if (
+      !this.state.eatenSushi.includes(sushi) &&
+      this.state.moneyRemaining >= sushi.price
+    ) {
+      this.setState({
+        eatenSushi: [...this.state.eatenSushi, sushi],
+        moneyRemaining: this.state.moneyRemaining - sushi.price
+      });
     }
   };
 
   render() {
-    // debugger;
-    // console.log(this.eatenSushi({}));
+    console.log(this.state);
     return (
-      <div>
-        {this.state.allSushis.length === 0 ? (
-          <div>"Loading..."</div>
-        ) : (
-          <div className="app">
-            <SushiContainer
-              allSushis={this.getSushiSet()}
-              sushiEaten={this.sushiEaten}
-              getNewSushiSet={this.getNewSushiSet}
-              sushiTransaction={this.sushiTransaction}
-            />
-            <Table
-              money={this.state.money}
-              eatenSushis={this.state.eatenSushis}
-            />
-          </div>
-        )}
+      <div className="app">
+        <SushiContainer
+          sushis={this.displaySushi()}
+          moreSushi={this.moreSushi}
+          eatSushi={this.eatSushi}
+          eatenSushi={this.state.eatenSushi}
+        />
+        <Table
+          eatenSushi={this.state.eatenSushi}
+          moneyRemaining={this.state.moneyRemaining}
+        />
       </div>
     );
   }

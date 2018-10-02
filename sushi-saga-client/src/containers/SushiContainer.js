@@ -3,18 +3,18 @@ import MoreButton from "../components/MoreButton";
 import Sushi from "../components/Sushi";
 
 const SushiContainer = props => {
+  console.log(props);
   return (
     <Fragment>
       <div className="belt">
-        {props.allSushis.map(sushi => (
+        {props.sushis.map(sushi => (
           <Sushi
             sushi={sushi}
-            key={sushi.id}
-            sushiEaten={props.sushiEaten}
-            sushiTransaction={props.sushiTransaction}
+            eatSushi={props.eatSushi}
+            eatenSushi={props.eatenSushi}
           />
         ))}
-        <MoreButton getNewSushiSet={props.getNewSushiSet} />
+        <MoreButton moreSushi={props.moreSushi} />
       </div>
     </Fragment>
   );
